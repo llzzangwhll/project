@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="compare">
+
+<select id="list"
+	resultType="com.example.headset0.model.compare.CompareDTO">
+	
+	select *, (select p_brand_name from p_brand where p_brand_idx=p.p_brand) as p_brand_name 
+	from product p 
+	</select>
+	
+	<select id="sel"
+	resultType="com.example.headset0.model.compare.CompareDTO">
+	select * from product where p_name=#{p_name}
+	</select>
+	
+	<select id="brand_list"
+	resultType="com.example.headset0.model.compare.CompareDTO">
+	select p_brand from product
+	</select>
+
+
+</mapper>

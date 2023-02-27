@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cart">
+	<insert id="insert">
+		insert into cart (m_id,p_code,amounts) values
+		(#{m_id},#{p_code},#{amounts})
+	</insert>
+	
+	<update id="modify">
+		update cart set amounts=#{amounts}
+		where cart_idx=#{cart_idx} 
+	</update>
+	
+	<delete id="delete">
+		delete from cart where cart_idx=#{cart_idx}
+	</delete>
+	
+	<delete id="delete_all">
+		delete from cart where m_id=#{m_id}
+	</delete>
+	
+	<select id="list" resultType="com.example.headset0.model.cart.CartDTO">
+		select cart_idx, p.p_code, c.m_id, m_name, p_name, amounts, p_price, (p_price*amounts) money, p_image
+       	from member m, cart c, product p
+        where m.m_id=c.m_id and c.p_code=p.p_code and c.m_id=#{m_id} order by cart_idx
+	</select>
+	
+	<select id="sum_money" resultType="int">
+		select ifnull(sum(p_price*amounts),0) from cart c, product p
+		where c.p_code=p.p_code and m_id=#{m_id}
+	</select>
+	
+	<select id="cart_money"
+	resultType="com.example.headset0.model.cart.CartDTO">
+		select p_name, sum(p_price*amounts) money from cart c, product p
+		where c.p_code=p.p_code group by p_name order by p_name
+	</select>	
+	
+	<select id="count_idx" resultType="int">
+	select count(*) from cart
+	where m_id=#{m_id}
+	
+	
+	</select>
+	
+	<select id="count" resultType="int">
+		select count(*) from cart
+		where m_id=#{m_id} and p_code=#{p_code}
+	</select>
+
+	<update id="update">
+		update cart 
+		set amounts = amounts + #{amounts}
+		where m_id = #{m_id} and p_code = #{p_code}
+	</update>
+</mapper>

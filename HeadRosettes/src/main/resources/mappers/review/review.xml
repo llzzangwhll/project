@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="review">
+	<select id="list"
+		resultType="com.example.headset0.model.review.ReviewDTO">
+	    SELECT r_idx,r_title,r_text,r_date,b.m_id,r_hit, like_count, 
+	    (select b.p_name from buy_p_code where bpc_idx=re_bpc_idx) as p_name
+		from review r, buy_p_code b, member m
+		<include refid="search_list" />
+		ORDER BY r_idx DESC, r_date DESC
+		LIMIT #{start}, 10
+	</select>
+		
+	<update id="increase_hit">
+	 update review set r_hit=r_hit+1 where r_idx=#{r_idx}
+	
+	</update>
+	
+	<update id="like_insert">
+	  update review set like_count=like_count+1 where r_idx=#{r_idx}
+ 	</update>
+ 	
+ 	<update id="like_delete">
+ 	  update review set like_count=like_count-1 where r_idx=#{r_idx}
+ 	</update>
+	
+	<update id="likeUp">
+	   insert into like_or_not (r_idx, m_id, like_val) values
+	   (#{r_idx}, #{m_id}, #{likeVal})
+	
+	
+	</update>
+	
+	<update id="likeDown">
+	   delete from like_or_not where r_idx=#{r_idx} and m_id=#{m_id}
+	</update>
+
+	<select id ="spe_list" resultType="com.example.headset0.model.review.ReviewDTO">
+	   select r.p_code, r_title, m_id, r_text, r_date, filename, rre_text, (select m_name from member where authority = 'ROLE_ADMIN') as rre_id, rre_date
+	   from review r left OUTER join review_reply rre
+	   on r.r_idx=rre.r_idx where r.p_code=#{p_code}
+	</select>
+ 
+	<insert id="insert">
+		insert into review (p_code,r_title,re_bpc_idx,m_id,r_text,filename, like_count) values
+		(#{p_code},#{r_title},#{bpc_idx},#{m_id},#{r_text},#{filename}, 0)
+	</insert>
+
+
+
+<select id="detail"
+		resultType="com.example.headset0.model.review.ReviewDTO">
+		select r.r_idx,r_title,r_text,r_date,r_hit,r.m_id,filename,like_val, 
+		(select p_name from buy_p_code where bpc_idx=re_bpc_idx) as p_name,
+		(select bpc_date from buy_p_code where bpc_idx=re_bpc_idx) as bpc_date
+		from review r left OUTER join like_or_not l
+		on r.r_idx=l.r_idx and l.m_id=#{m_id} where r.r_idx=#{r_idx}
+</select>
+
+<select id="detail_2"
+		resultType="com.example.headset0.model.review.ReviewDTO">
+		select r_idx,r_title,r_text,r_date,r_hit,r.m_id,filename,
+		(select p_name from buy_p_code where bpc_idx=re_bpc_idx) as p_name,
+		(select bpc_date from buy_p_code where bpc_idx=re_bpc_idx) as bpc_date
+		from review r 
+		where r_idx=#{r_idx}
+</select>
+
+<update id="increase_r_viewcount">
+update review set r_viewcount=r_viewcount+1 where r_idx=#{r_idx}
+</update>
+<update id="update">
+	update review set r_title=#{r_title}, r_text=#{r_text}
+	where r_idx=#{r_idx}
+</update>
+
+<delete id="delete">
+	delete from review where r_idx=#{r_idx}
+</delete>
+
+<update id="sort">
+	UPDATE review set r_idx =(r_idx-1) where r_idx > #{r_idx}
+</update>
+
+	<select id="count" resultType="int">
+		select count(*) from review r, member m
+		<include refid="search" />
+	</select>
+	
+	<select id = "count_like" resultType="int">
+	    select count(*) from like_or_not where r_idx=#{r_idx}
+	 </select>
+	
+	
+	
+	<select id="list_r_attach" resultType="String">
+		select r_filename from r_attach
+		where r_idx=#{r_idx} order by r_date
+	</select>
+	
+	<insert id="insert_r_attach">
+		insert into attach (r_filename, r_idx) values
+		(#{r_filename}, ifnull((select max(r_idx)+1 from r_attach),1)
+	</insert>
+	<insert id="update_r_attach">
+		insert into r_attach (r_filename, r_idx)
+ 		values (#{r_filename}, #{r_idx} )
+	</insert>
+	
+	
+	<sql id="search">
+		<choose>
+			<when test="search_option == 'all' ">
+				where r.m_id=m.m_id
+				and (r.m_id like CONCAT('%',#{keyword},'%')
+				or r_text like CONCAT( '%',#{keyword}, '%')
+				OR r_title LIKE CONCAT('%',#{keyword},'%')
+				)
+			</when>
+			<otherwise>
+				where r.m_id=m.m_id
+				and ${search_option} like CONCAT('%',#{keyword},'%')
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<sql id="search_list">
+		<choose>
+			<when test="search_option == 'all' ">
+				where r.m_id=m.m_id and bpc_idx=re_bpc_idx
+				and (r.m_id like CONCAT('%',#{keyword},'%')
+				or r_text like CONCAT( '%',#{keyword}, '%')
+				OR r_title LIKE CONCAT('%',#{keyword},'%')
+				)
+			</when>
+			<otherwise>
+				where r.m_id=m.m_id and bpc_idx=re_bpc_idx
+				and ${search_option} like CONCAT('%',#{keyword},'%')
+			</otherwise>
+		</choose>
+	</sql>
+
+
+
+</mapper>

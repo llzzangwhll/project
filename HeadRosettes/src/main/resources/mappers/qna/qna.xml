@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="qna">
+
+	<select id="list"
+		resultType="com.example.headset0.model.qna.QnaDTO">
+		select q_idx, q_title, q_text, q_date, q_hit, q_type, q_state, m_name,
+		(select count(*) from qna_reply where q_num=q.q_idx) reply_cnt
+		FROM qna q, member m
+		WHERE q.q_writer=m.m_id
+		ORDER BY q_idx DESC, q_date desc
+		limit ${start}, 10
+	</select>
+
+	<insert id="insert">
+		insert into qna (q_type, q_title, q_text, q_pwd, q_writer,
+		q_state) values
+		 (#{q_type}, #{q_title}, #{q_text}, #{q_pwd},
+		#{q_writer}, #{q_state})
+	</insert>
+
+	<select id="detail"
+		resultType="com.example.headset0.model.qna.QnaDTO">
+		select q_idx, q_writer, q_title, q_type, q_text, q_date, q_hit, q_state, m_name
+		from qna q, member m
+		where q.q_writer=m.m_id and q_idx=#{q_idx}
+
+
+	</select>
+
+	<update id="increase_hit">
+		update qna set q_hit=q_hit+1 where q_idx=#{q_idx}
+
+	</update>
+
+	<update id="update">
+		update qna set q_title=#{q_title}, q_text=#{q_text} where q_idx=#{q_idx}
+	</update>
+
+	<delete id="delete">
+		delete from qna where q_idx=#{q_idx}
+
+	</delete>
+
+	<select id="count" resultType="int">
+
+		select count(*) from qna
+
+	</select>
+
+	<select id="list_attach" resultType="String">
+		select file_name from qna_attach where q_num=#{q_num}
+		order by attach_date
+
+	</select>
+
+	<insert id="insert_attach">
+		insert into qna_attach (file_name, q_num) values
+		(#{file_name}, (select max(q_idx) from qna))
+	</insert>
+
+	<insert id="update_attach">
+		insert into qna_attach (file_name, q_num) values (#{file_name}, #{q_num})
+
+	</insert>
+
+	<delete id="delete_attach">
+		delete from qna_attach where file_name=#{file_name}
+
+	</delete>
+
+	<select id="check_q_pwd" resultType="int">
+		select count(*) from qna
+		where q_idx=#{q_idx} and q_pwd=#{q_pwd}
+	</select>
+
+
+	<update id="update_q_state">
+		update qna set q_state=#{q_state} where q_idx=#{q_idx}
+
+
+	</update>
+
+</mapper>

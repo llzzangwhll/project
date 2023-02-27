@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pay">
+	<insert id="insert">
+		insert into pay (p_code,m_id,amounts,money) values
+		(#{p_code},#{m_id},#{amounts},#{money})
+	</insert>
+	
+	<delete id="delete_all">
+		delete from pay where m_id=#{m_id}
+	</delete>
+	
+	
+	<select id="list"
+		resultType="com.example.headset0.model.pay.PayDTO">
+		select
+		pay_idx,p.p_code,pay.m_id,m.m_phone,p_name,amounts,p_price,m.m_name,m.m_email,m.postcode,m.address,m.detailAddress,
+		(p_price*amounts) money, p_image, m.m_point
+		from member m, pay pay,
+		product p
+		where
+		m.m_id=pay.m_id and pay.p_code=p.p_code and
+		pay.m_id=#{m_id}
+		order by
+		pay_idx
+	</select>
+
+	<select id="sum_money" resultType="int">
+		SELECT
+		SUM(p_price*amounts) from pay pay, product p
+		where
+		pay.p_code=p.p_code and pay.m_id=#{m_id};
+	</select>
+
+	<select id="m_point" resultType="int">
+		SELECT m_point from member
+		where m_id=#{m_id};
+	</select>
+
+
+	<select id="count" resultType="int">
+		select count(*)-1 from pay where m_id=#{m_id}
+	</select>
+	
+	
+	<select id="p_code_list" resultType="com.example.headset0.model.pay.PayDTO">
+      SELECT *,b.b_state, r_idx 
+      FROM buy_p_code bpc left join review r on re_bpc_idx=bpc_idx 
+      left join buy b on b.m_id = bpc.m_id AND b.b_date = bpc_date
+       WHERE bpc.m_id = #{m_id}
+      </select>
+   	
+	
+	<insert id="insert_p_code">
+      insert into buy_p_code (pay_idx,p_code,p_name,amounts,m_id,money) values
+      (#{pay_idx},#{p_code},#{p_name},#{amounts},#{m_id},#{money})
+   	</insert>
+	
+	
+	<update id="buy_update">
+      UPDATE member m 
+      JOIN buy_p_code bpc ON m.m_id=bpc.m_id
+      SET m.m_point=m.m_point-#{used_point}+bpc.money*0.05 
+      WHERE bpc.pay_idx=#{pay_idx}
+   	</update>
+   	
+   	<select id="to_review" resultType="com.example.headset0.model.pay.PayDTO">
+		select * from buy_p_code where bpc_idx=#{bpc_idx}
+	</select>
+</mapper>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="product">
+
+	<select id="list" 
+	resultType="com.example.headset0.model.product.ProductDTO">		
+		select p.p_code, p.p_price, p.p_brand, p.p_image, p.p_name, b.p_brand_name
+		from product p, p_brand b
+		<include refid="search" />			
+		order by p.p_code
+		LIMIT #{start}, 12	
+	</select>
+	
+	
+	<select id="list_filter" resultType="com.example.headset0.model.product.ProductDTO">
+	select p.p_code, p.p_price, p.p_brand, p.p_image, p.p_name, b.p_brand_name
+		from product p, p_brand b
+      <choose>
+         <when test="p_brand!=0">
+            where p.p_brand=b.p_brand_idx and p.p_brand=#{p_brand}
+            and p.p_price <![CDATA[<]]> #{p_price}
+            and p_noise=#{p_noise} and p_line=#{p_line}
+         </when>
+         <otherwise>
+            where p.p_brand=b.p_brand_idx
+            and p.p_price <![CDATA[<]]> #{p_price}
+            and p_noise=#{p_noise} and p_line=#{p_line}
+         </otherwise>
+      </choose>
+		order by p.p_code
+		LIMIT #{start}, 12
+	</select>
+	
+	 <select id="brand_name" resultType="com.example.headset0.model.product.ProductDTO">
+		select * from p_brand
+	</select>
+
+	
+<select id="brand_list"
+		resultType="com.example.headset0.model.product.ProductDTO">
+		select p_code, p_price, p_brand, p_image, p_name, (select p_brand_name
+		from p_brand where p_brand_idx=p.p_brand) p_brand_name
+		from product p,
+		p_brand b
+		<include refid="search" />
+		and p_brand=#{p_brand}
+		order by p.p_code
+		LIMIT #{start}, 12
+	</select>
+	
+	<select id ="p_brand_list" 
+	resultType="com.example.headset0.model.product.ProductDTO">
+	
+	select * from p_brand
+	
+	</select>
+	
+    <select id="filter_count" resultType="int">
+		select count(*) from product p, p_brand b
+		<include refid="search" />
+		and p.p_brand=#{p_brand} and p.p_price <![CDATA[<]]>
+		#{p_price}
+		and p_noise=#{p_noise} and p_line=#{p_line}
+		order by p.p_code
+	</select>
+
+
+	<select id="brand_count" resultType="int">
+		select count(*) from product p, p_brand b
+		<include refid="search" />
+		and p_brand=#{p_brand}
+	</select>
+
+
+	<select id="best_list" resultType="com.example.headset0.model.product.ProductDTO">
+      select p_code,p_image,p_name from product order by p_count DESC
+   </select>
+	
+	
+	<select id="count" resultType="int">
+		select count(*) from product p, p_brand b
+		<include refid="search" />
+	</select>	
+	
+	<insert id="insert">
+		insert into product(p_code, p_name, p_brand, p_price,
+		p_image, p_detail_image, p_length, p_width, p_height, p_color1,
+		p_color2, p_color3, p_playtime, p_noise, p_line)
+		values (#{p_code}, #{p_name}, #{p_brand}, #{p_price}, #{p_image}, #{p_detail_image},
+		#{p_length}, #{p_width}, #{p_height}, #{p_color1}, #{p_color2},
+		#{p_color3}, #{p_playtime}, #{p_noise}, #{p_line})
+	</insert>
+	
+	<select id="detail" resultType="com.example.headset0.model.product.ProductDTO">
+		select p_code, p_name, p_brand, p_price, p_image, p_detail_image, 
+		(select p_brand_name from p_brand where p_brand_idx=p.p_brand) p_brand_name,
+		p_length, p_width, p_height, p_weight,
+		p_color1, p_color2, p_color3,
+		p_playtime, p_noise, p_line 
+		from product p
+		where p_code=#{p_code}
+	</select>
+	
+	<delete id="delete">
+		delete from product where p_code=#{p_code}
+	</delete>
+	
+	<update id="update">
+		update product set p_code=#{p_code}, p_brand=#{p_brand}, p_name=#{p_name}, p_price=#{p_price}, p_image=#{p_image}, p_detail_image=#{p_detail_image}, 
+		p_length=#{p_length}, p_width=#{p_width}, p_height=#{p_height}, p_weight=#{p_weight}, p_color1=#{p_color1}, p_color2=#{p_color2}, p_color3=#{p_color3}, p_playtime=#{p_playtime} ,p_noise=#{p_noise}, p_line=#{p_line}
+		where p_code=#{p_code}
+	</update>
+	
+	<select id="file_info" resultType="String">
+		select p_image from product where p_code=#{p_code}
+	</select>
+	
+	<update id="update_count">
+		update product set p_count = p_count+#{amounts} where p_code=#{p_code}
+	</update>
+	
+	<select id="file_detail_info" resultType="String">
+		select p_detail_image from product where p_code=#{p_code}
+	</select>
+
+<sql id="search">
+		<choose>
+			<when test="search_option == 'all' ">
+				where p.p_brand=b.p_brand_idx
+				and (p.p_name like CONCAT('%',#{keyword},'%')
+				or b.p_brand_name like CONCAT('%', #{keyword}, '%'))
+			</when>
+			<otherwise>
+				where p.p_brand=b.p_brand_idx
+				and ${search_option} like CONCAT('%', #{keyword}, '%')
+			</otherwise>
+		</choose>
+	</sql>	
+</mapper>

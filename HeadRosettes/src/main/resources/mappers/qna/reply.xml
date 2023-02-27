@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="reply">
+ 
+ <update id="update">
+ update qna_reply set qre_text=#{qre_text}
+ where qre_idx=#{qre_idx}
+ </update>
+ 
+ <delete id="delete">
+ delete from qna_reply where qre_idx=#{qre_idx}
+ </delete>
+ 
+ <select id="detail" resultType="com.example.headset0.model.qna.ReplyDTO">
+ select * from qna_reply where qre_idx=#{qre_idx}
+ </select>
+ 
+ <select id="count" resultType="int">
+ select count(*) from qna_reply
+ where q_num=#{q_num}
+ </select>
+ 
+ <insert id="insert">
+ insert into qna_reply
+ (qre_idx, q_num, qre_text, qre_writer)
+values ( (select max(qre_idx)), #{q_num}, #{qre_text}, #{qre_writer})  
+ </insert>
+ 
+ <select id="list" resultType="com.example.headset0.model.qna.ReplyDTO">
+ select qre_idx, q_num, qre_text, qre_writer, a_id, qre_date,
+ (select  q_writer from qna where q_idx=q.q_num) q_writer
+ from qna_reply q, admin a
+ where q.qre_writer=a.a_id and q_num=#{q_num}
+ order by qre_idx desc
+ </select>
+ 
+ 
+
+
+
+
+
+
+</mapper>

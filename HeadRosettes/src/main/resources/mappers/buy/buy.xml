@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="buy">
+
+	<select id="buy_list" resultType="com.example.headset0.model.buy.BuyDTO">
+      select * from buy order by b_idx desc
+   </select>
+	
+	<select id="b_idx" resultType="com.example.headset0.model.buy.BuyDTO">
+		select b_idx from buy m_id=#{m_id}
+	</select>
+	
+	<insert id="insert">
+		insert into buy
+		(money,m_id,m_name,m_phone,m_email,address,detailAddress,postcode)
+		values
+		(#{money},#{m_id},#{m_name},#{m_phone},#{m_email},#{address},#{detailAddress},#{postcode})
+	</insert>	
+	
+   <select id="purchase_list" resultType="com.example.headset0.model.buy.BuyDTO">
+        SELECT *,b.b_state, r_idx 
+        FROM buy_p_code bpc 
+        left join review r on re_bpc_idx=bpc_idx 
+        left join buy b on b.m_id = bpc.m_id AND b.b_date = bpc_date
+        WHERE bpc.m_id = #{m_id}
+         order by b_idx desc
+       limit 0,5
+      </select>
+	
+	<update id="update_b_state">
+      update buy set b_state=#{b_state} where b_idx=#{b_idx}
+   </update>
+
+	<delete id="delete">
+		delete from buy where b_idx=#{b_idx}
+	</delete>
+
+	
+	<delete id="delete_all">
+		delete from buy
+	</delete>
+</mapper>

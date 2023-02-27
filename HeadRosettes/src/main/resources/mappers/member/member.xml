@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member">
+<insert id="insert">
+insert into member values 
+	(#{m_id},#{m_pwd},#{m_name}, #{m_phone}, #{m_email}, 
+	#{postcode}, #{address}, #{detailAddress}, #{extraAddress}, 3000, #{m_gender}, #{birthdate}, 1, #{authority})
+</insert>
+
+<select id="detail" resultType="java.util.Map">
+	select m_id as username, m_pwd as password, m_name, enabled, authority,
+	m_phone, m_email, postcode, address, detailAddress, extraAddress, m_gender, birthdate
+	from member
+	where m_id=#{m_id}
+</select>
+
+<select id="idCheck" resultType="int">
+select count(*) from member
+where m_id=#{m_id}
+
+</select>
+
+<update id="unregister">
+update member set enabled=0
+where m_id=#{m_id}
+
+</update>
+
+<update id="info_update">
+update member set m_pwd=#{m_pwd}, m_phone=#{m_phone}, m_email=#{m_email},
+postcode=#{postcode}, address=#{address}, detailAddress=#{detailAddress},
+extraAddress=#{extraAddress}, m_gender=#{m_gender}, birthdate=#{birthdate}
+where m_id=#{m_id}
+
+
+
+
+</update>
+
+
+
+
+
+
+</mapper>

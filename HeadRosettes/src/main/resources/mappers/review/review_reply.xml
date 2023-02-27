@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="review_reply">
+
+	<update id="update">
+		update review_reply set rre_text=#{rre_text}
+		where
+		rre_idx=#{rre_idx}
+	</update>
+
+	<delete id="delete">
+		delete from review_reply where rre_idx=#{rre_idx}
+	</delete>
+
+	<select id="detail"
+		resultType="com.example.headset0.model.review.Review_ReplyDTO">
+		select * from review_reply where rre_idx=#{rre_idx}
+	</select>
+
+	<insert id="insert">
+		insert into review_reply
+		(rre_idx, r_idx,rre_text,rre_id) values
+		((select max(rre_idx)),#{r_idx}, #{rre_text}, #{rre_id})
+	</insert>
+
+	<select id="list"
+		resultType="com.example.headset0.model.review.Review_ReplyDTO">
+		select rre_idx,r_idx,rre_text,rre_date, rre_id
+		from review_reply
+		WHERE r_idx=#{r_idx}
+	</select>
+
+	<select id="count" resultType="int">
+		SELECT COUNT(*) FROM review_reply
+		WHERE r_idx=#{r_idx}
+	</select>
+
+</mapper>

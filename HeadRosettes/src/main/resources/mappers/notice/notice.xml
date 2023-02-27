@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+
+	<insert id="insert">
+		insert into notice (n_title, n_writer, n_text, n_image)
+		values (#{n_title},#{n_writer},#{n_text},#{n_image})
+	</insert>
+	
+	<select id="list" resultType="com.example.headset0.model.notice.NoticeDTO">
+      select * from notice
+      order by n_idx
+      LIMIT ${start}, 10
+   </select>
+   
+   <select id="count" resultType="int">
+     select count(*) from notice
+   
+   </select>
+	
+	<select id="detail" resultType="com.example.headset0.model.notice.NoticeDTO">
+		select * from notice
+		where n_idx=#{n_idx}
+	</select>
+	
+	<update id="increase_n_viewcount">
+		update notice set n_viewcount=n_viewcount+1 where n_idx=#{n_idx}
+	</update>
+	
+	<update id="update">
+		update notice set n_title=#{n_title}, n_text=#{n_text}, n_image=#{n_image}
+		where n_idx=#{n_idx}
+	</update>
+	
+	<delete id="delete">
+		delete from notice where n_idx=#{n_idx}
+	</delete>
+	
+	<select id="file_info" resultType="String">
+		select n_image from notice
+		where n_idx=#{n_idx}
+	</select>
+</mapper>

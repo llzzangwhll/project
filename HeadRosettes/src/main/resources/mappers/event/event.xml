@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="event">
+	<insert id="insert">
+		insert into event (e_idx,e_text,e_image,e_title)
+		values (#{e_idx},#{e_text},#{e_image}, #{e_title})
+	</insert>
+
+	<update id="update">
+		update event
+		set e_title=#{e_title}, e_text=#{e_text},
+		e_image=#{e_image}
+		where e_idx=#{e_idx}
+	</update>
+
+	<select id="file_info" resultType="String">
+		select e_image from event
+		where e_idx=#{e_idx}
+	</select>
+
+	<select id="detail"
+		resultType="com.example.headset0.model.event.EventDTO">
+		select * from event where e_idx=#{e_idx}
+	</select>
+
+	<select id="list" resultType="com.example.headset0.model.event.EventDTO">
+		select * from event limit #{start}, 3
+	</select>
+
+	<update id="e_viewcount">
+		update event set e_viewcount=e_viewcount+1 where
+		e_idx=#{e_idx}
+	</update>
+
+	<update id="e_like">
+		update event set e_like=e_like+1 where e_idx=#{e_idx}
+	</update>
+
+
+	<delete id="delete">
+		delete from event where e_idx=#{e_idx}
+	</delete>
+	
+	<select id="count" resultType="int">
+		select count(*) from event
+	</select>
+	
+	
+</mapper>
